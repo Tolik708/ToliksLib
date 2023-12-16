@@ -9,6 +9,8 @@
 #include <stdint.h>
 #include <cassert>
 
+#include "Utilities/EnumFunctions.hpp"
+
 namespace Tolik
 {
 class Debug;

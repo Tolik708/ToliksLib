@@ -1,6 +1,8 @@
 #ifndef WINDOW_HPP
 #define WINDOW_HPP
 
+#include "Rendering/Renderer.hpp"
+
 class SDL_Window;
 
 namespace Tolik
@@ -15,16 +17,18 @@ public:
   ~Window();
 
   void ListenToEvents();
-  inline SDL_Window *GetWindow() { return m_window; }
-  inline Renderer *GetRenderer() { return m_renderer; }
-  inline int GetWidth() { return m_width; }
-  inline int GetHeight() { return m_height; }
+  inline SDL_Window *GetWindow() const { return m_window; }
+  inline const Renderer &GetRenderer() const { return m_renderer; }
+  inline int GetWidth() const { return m_width; }
+  inline int GetHeight() const { return m_height; }
+  void LockCursor(bool state) const;
+  void HideCursor(bool state) const;
 
 private:
+  Renderer m_renderer;
   bool *m_running;
   UserInput *m_userInput;
   SDL_Window *m_window;
-  Renderer *m_renderer;
   int m_width, m_height;
 };
 }

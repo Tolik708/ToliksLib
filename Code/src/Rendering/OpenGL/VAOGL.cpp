@@ -17,7 +17,7 @@ void BufferLayoutGL::AddBufferLayoutElement(uint32_t type, int8_t size, uint8_t 
   m_stride += GetSizeFromGLType(type) * size;
 }
 
-void VAOGL::AddVBO(const VBOGL &vbo, const BufferLayoutGL &layout)
+void VAOGL::AddVBO(const VBOGL &vbo, const BufferLayoutGL &layout) const
 {
   Bind();
   vbo.Bind();
@@ -30,7 +30,7 @@ void VAOGL::AddVBO(const VBOGL &vbo, const BufferLayoutGL &layout)
   }
 }
 
-void VAOGL::AddEBO(const EBOGL &ebo)
+void VAOGL::AddEBO(const EBOGL &ebo) const
 {
   Bind();
   ebo.Bind();
