@@ -15,7 +15,7 @@ struct Vertex;
 class VBOGL
 {
 public:
-  VBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
+  inline VBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
   inline void Delete() const { GL_CALL(glDeleteBuffers(1, &m_id)); }
 
   inline void Bind() const { GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_id)); }
@@ -32,7 +32,7 @@ private:
 class EBOGL
 {
 public:
-  EBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
+  inline EBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
   inline void Delete() const { GL_CALL(glDeleteBuffers(1, &m_id)); }
 
   inline void Bind() const { GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id)); }

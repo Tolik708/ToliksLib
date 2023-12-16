@@ -10,11 +10,12 @@
 
 #include "Rendering/OpenGL/ShaderGL.hpp"
 #include "Rendering/OpenGL/VAOGL.hpp"
-#include "Rendering/Renderer.hpp"
+
 
 namespace Tolik
 {
 class Debug;
+enum class MeshType : uint32_t;
 
 class ResourceManagerGL
 {
@@ -29,6 +30,7 @@ private:
   // 0 - Shader
   // 1 - Buffer Layout
   std::unordered_map<MeshType, std::array<uint32_t, 3>> m_indexes;
+  
   std::vector<ShaderGL> m_shaders;
   std::vector<BufferLayoutGL> m_layouts;
   std::vector<GLenum> m_drawModes;
