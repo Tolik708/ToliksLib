@@ -255,9 +255,9 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
   template<std::size_t Index, typename T = Type> inline constexpr T &At() { static_assert(Index < Size, "Too big index"); return static_cast<T>(data[Index]); }
   
   // Just gets value
-  template<std::size_t Index, typename T = Type> inline constexpr T Get() const { return data[Index]; }
+  template<std::size_t Index, typename T = Type> inline constexpr T Get() const { return static_cast<T>(data[Index]); }
   // Just gets value
-  template<typename T = Type> inline constexpr T Get(std::size_t index) const { return data[index]; }
+  template<typename T = Type> inline constexpr T Get(std::size_t index) const { return static_cast<T>(data[index]); }
 
   inline Type &operator[](std::size_t index) { return data[index]; }
   inline constexpr Type operator[](std::size_t index) const { return data[index]; }
