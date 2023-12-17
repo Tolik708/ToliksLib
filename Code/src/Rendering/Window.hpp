@@ -2,6 +2,8 @@
 #define WINDOW_HPP
 
 #include "Rendering/Renderer.hpp"
+#include "Rendering/Cursor.hpp"
+#include "Math/Vector.hpp"
 
 class SDL_Window;
 
@@ -17,12 +19,13 @@ public:
   ~Window();
 
   void ListenToEvents();
-  inline SDL_Window *GetWindow() const { return m_window; }
-  inline const Renderer &GetRenderer() const { return m_renderer; }
+  inline SDL_Window *GetSDLWindow() const { return m_window; }
+  inline Renderer &GetRenderer() { return m_renderer; }
+  inline Cursor &GetCursor() { return m_cursor; }
   inline int GetWidth() const { return m_width; }
   inline int GetHeight() const { return m_height; }
-  void LockCursor(bool state) const;
-  void HideCursor(bool state) const;
+  inline Vec2i GetSize() const { return Vec2i(m_width, m_height); }
+
 
 private:
   Renderer m_renderer;
@@ -30,6 +33,7 @@ private:
   UserInput *m_userInput;
   SDL_Window *m_window;
   int m_width, m_height;
+  Cursor m_cursor;
 };
 }
 

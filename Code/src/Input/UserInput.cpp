@@ -11,14 +11,14 @@ namespace Tolik
 {
 void UserInput::Update()
 {
-  for(std::size_t i = 1; i < static_cast<std::size_t>(KeyID::Count); i++)
+  for(std::size_t i = 1; i < ToUnderlying(KeyID::Count); i++)
   {
     if(m_keys[i] == KeyState::Down)
       m_keys[i] = KeyState::Pressed;
     else if(m_keys[i] == KeyState::Up)
       m_keys[i] = KeyState::NONE;
   }
-  for(std::size_t i = 1; i < static_cast<std::size_t>(MouseButtonID::Count); i++)
+  for(std::size_t i = 1; i < ToUnderlying(MouseButtonID::Count); i++)
   {
     if(m_mouseKeys[i] == KeyState::Down)
       m_mouseKeys[i] = KeyState::Pressed;
@@ -26,7 +26,7 @@ void UserInput::Update()
       m_mouseKeys[i] = KeyState::NONE;
   }
 
-  m_axises[static_cast<std::size_t>(InputAxis::MouseWheel)] = Vec2::zero();
-  m_axises[static_cast<std::size_t>(InputAxis::MouseDelta)] = Vec2::zero();
+  m_axises[ToUnderlying(InputAxis::MouseDelta)] = Vec2i::zero();
+  m_axises[ToUnderlying(InputAxis::MouseWheel)] = Vec2i::zero();
 }
 }

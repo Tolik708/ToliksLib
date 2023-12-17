@@ -34,8 +34,8 @@ namespace Detail
   inline constexpr Color32 VectorConstants<uint8_t, 4, VectorFlag::Color>::white() { return Color32(255, 255, 255, 255); }
 
   // UnitColor
-  inline constexpr UnitColor VectorConstants<DefaultPrecisionType, 4, VectorFlag::Color>::black() { return UnitColor(0, 0, 0, 1); }
-  inline constexpr UnitColor VectorConstants<DefaultPrecisionType, 4, VectorFlag::Color>::white() { return UnitColor(1, 1, 1, 1); }
+  inline constexpr UnitColor VectorConstants<DefFloatType, 4, VectorFlag::Color>::black() { return UnitColor(0, 0, 0, 1); }
+  inline constexpr UnitColor VectorConstants<DefFloatType, 4, VectorFlag::Color>::white() { return UnitColor(1, 1, 1, 1); }
 }
 
 // Functions
@@ -43,7 +43,7 @@ namespace Detail
 template<typename Type, std::size_t Size, VectorFlag Group>
 inline constexpr Vector<Type, Size, Group> Vector<Type, Size, Group>::Normalized() const
 {
-  DefaultPrecisionType magnitude = SquareMagnitude();
+  DefFloatType magnitude = SquareMagnitude();
   if(magnitude == 0)
     return Self();
 
@@ -124,10 +124,10 @@ inline constexpr Vec3T<T> Vector<Type, Size, Group>::Cross(const Vec3T<Vector1Ty
 
 template<typename Type, std::size_t Size, VectorFlag Group>
 template<typename VectorType, typename T>
-inline constexpr QuaT<T> Vector<Type, Size, Group>::FromAxis(Vec3T<VectorType> vector, DefaultPrecisionType angle)
+inline constexpr QuaT<T> Vector<Type, Size, Group>::FromAxis(Vec3T<VectorType> vector, DefFloatType angle)
 {
   angle *= 0.5;
-  DefaultPrecisionType sinAngle = sin(angle);
+  DefFloatType sinAngle = sin(angle);
   return QuaT<T>(static_cast<T>(vector.x() * sinAngle),
                         static_cast<T>(vector.y() * sinAngle),
                         static_cast<T>(vector.z() * sinAngle),
@@ -136,14 +136,14 @@ inline constexpr QuaT<T> Vector<Type, Size, Group>::FromAxis(Vec3T<VectorType> v
 
 template<typename Type, std::size_t Size, VectorFlag Group>
 template<typename T>
-inline constexpr QuaT<T> Vector<Type, Size, Group>::FromEuler(DefaultPrecisionType pitch, DefaultPrecisionType yaw, DefaultPrecisionType roll)
+inline constexpr QuaT<T> Vector<Type, Size, Group>::FromEuler(DefFloatType pitch, DefFloatType yaw, DefFloatType roll)
 {
   pitch /= 2;
   yaw /= 2;
   roll /= 2;
-  DefaultPrecisionType cosPitch = cos(pitch);
-  DefaultPrecisionType cosYaw =   cos(yaw);
-  DefaultPrecisionType cosRoll =  cos(roll);
+  DefFloatType cosPitch = cos(pitch);
+  DefFloatType cosYaw =   cos(yaw);
+  DefFloatType cosRoll =  cos(roll);
   pitch = sin(pitch);
   yaw =   sin(yaw);
   roll =  sin(roll);
@@ -157,13 +157,13 @@ template<typename Type, std::size_t Size, VectorFlag Group>
 template<typename VectorType, typename T>
 inline void Vector<Type, Size, Group>::GetAxisAndAngle(Vec3T<VectorType> &axis, T &angle) const
 {
-  DefaultPrecisionType scale = sqrt(static_cast<DefaultPrecisionType>(1 - w() * w()));
+  DefFloatType scale = sqrt(static_cast<DefFloatType>(1 - w() * w()));
   if(scale == 0)
     axis.array = { 1, 0, 0 };
   else
     axis.array = { static_cast<VectorType>(x()) / scale, static_cast<VectorType>(x()) / scale, static_cast<VectorType>(x()) / scale };
   
-  angle = static_cast<T>(acos(static_cast<DefaultPrecisionType>(w())) * 2);
+  angle = static_cast<T>(acos(static_cast<DefFloatType>(w())) * 2);
 }
 
 template <typename Type, std::size_t Size, VectorFlag Group>

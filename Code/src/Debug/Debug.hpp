@@ -8,8 +8,9 @@
 
 #include "Debug/Logger.hpp"
 
-#define SDL_CALL(command) do { \
-    if(!(command)) \
+#define SDL_CALL(command) \
+  do { \
+    if(::Detail::DebugSDLCheck(command)) \
       Debug::GetLogger("main").Error("\"@3\" in @2, line: @1, file: @0", __FILE__, __LINE__, #command, SDL_GetError()); \
   } while(0)
   
@@ -18,6 +19,13 @@
     while(GLenum error = glGetError()) \
       Debug::GetLogger("main").Error("\"@3\" in command: @2, line: @1, file: @0", __FILE__, __LINE__, #command, Debug::GLErrorsNamesMap.at(error)); \
   } while(0)
+
+namespace Detail
+{
+  template<typename T, std::enable_if_t<!std::is_pointer_v<T> && !std::is_arithmetic_v<T>, bool> = true> bool DebugSDLCheck(T t) { return false; }
+  template<typename T, std::enable_if_t<std::is_pointer_v<T>, bool> = true> bool DebugSDLCheck(T t) { return t == nullptr; }
+  template<typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true> bool DebugSDLCheck(T t) { return (t < 0); }
+}
 
 namespace Tolik
 {

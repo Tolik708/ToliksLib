@@ -9,7 +9,11 @@
 
 namespace Tolik
 {
+// Settings
+
 const bool Debug::showSDLEvents = false;
+
+
 
 const std::unordered_map<GLenum, std::string> Debug::GLErrorsNamesMap =
 {

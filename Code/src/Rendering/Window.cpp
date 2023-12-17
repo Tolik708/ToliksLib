@@ -1,7 +1,5 @@
 #include "Window.hpp"
 
-#include <iostream>
-
 #include "SDL2/SDL.h"
 
 #include "Input/KeyID.hpp"
@@ -23,8 +21,9 @@ Window::Window(bool *running, UserInput *userInput)
   : m_renderer(RenderAPIType::OpenGL) // Here we decide what render API we will use
   , m_running(running)
   , m_userInput(userInput)
+  , m_cursor(this)
 {
-  SDL_CALL(SDL_Init(SDL_INIT_EVERYTHING) == 0);
+  SDL_CALL(SDL_Init(SDL_INIT_EVERYTHING));
   SDL_CALL(m_window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 500, 500, m_renderer.GetSDLWindowFlags()));
   SDL_GetWindowSize(m_window, &m_width, &m_height);
 
@@ -34,6 +33,7 @@ Window::Window(bool *running, UserInput *userInput)
 void Window::ListenToEvents()
 {
   m_userInput->Update();
+  m_cursor.Update();
 
   SDL_Event event;
   while(SDL_PollEvent(&event))
@@ -63,7 +63,15 @@ void Window::ListenToEvents()
                                           Vec2(event.wheel.y, event.wheel.x) : Vec2(event.wheel.x, event.wheel.y));
       break;
     case SDL_MOUSEMOTION:
-      m_userInput->UpdateMousePosition(Vec2(event.motion.x, event.motion.y), Vec2(event.motion.xrel, event.motion.yrel));
+      if(m_cursor.IsLocked() && !m_cursor.IsHidden())
+      {
+        Debug::GetLogger().Info(event.motion.xrel, event.motion.yrel);
+        m_userInput->UpdateMousePosition(Vec2i(0, 0), Vec2i(event.motion.xrel, event.motion.yrel));
+      }
+      else if(m_cursor.IsLocked())
+        m_userInput->UpdateMousePosition(Vec2i::zero(), Vec2i(event.motion.xrel, event.motion.yrel));
+      else
+        m_userInput->UpdateMousePosition(Vec2i(event.motion.x, event.motion.y), Vec2i(event.motion.xrel, event.motion.yrel));
       break;
     case SDL_WINDOWEVENT:
       switch(event.window.type)

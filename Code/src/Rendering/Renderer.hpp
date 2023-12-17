@@ -14,16 +14,16 @@ class MeshGL;
 
 struct Vertex
 {
-  Vertex(DefaultPrecisionType newX, DefaultPrecisionType newY, DefaultPrecisionType newZ) : x(newX), y(newY), z(newZ) {}
+  Vertex(DefFloatType newX, DefFloatType newY, DefFloatType newZ) : x(newX), y(newY), z(newZ) {}
   
-  DefaultPrecisionType x, y, z;
+  DefFloatType x, y, z;
 };
 
 struct DefaultVertex : Vertex
 {
-  DefaultVertex(DefaultPrecisionType newX, DefaultPrecisionType newY, DefaultPrecisionType newZ, DefaultPrecisionType newU, DefaultPrecisionType newV) : Vertex(newX, newY, newZ), u(newU), v(newV) {}
+  DefaultVertex(DefFloatType newX, DefFloatType newY, DefFloatType newZ, DefFloatType newU, DefFloatType newV) : Vertex(newX, newY, newZ), u(newU), v(newV) {}
 
-  DefaultPrecisionType u, v;
+  DefFloatType u, v;
 };
 
 // MeshType is enum that determins what shader and other stuff we will use in creating and rendering mesh
