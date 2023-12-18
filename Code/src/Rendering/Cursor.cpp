@@ -11,18 +11,17 @@ namespace Tolik
 {
 void Cursor::Update()
 {
-  if(IsLocked() && !IsHidden())
-    Warp(m_window->GetSize() / 2);
-
-  // Texture rendering
-
   if(!IsCustom())
     return;
+
+  // Texture rendering
 }
 
-void Cursor::Warp(int x, int y)
+void Cursor::Warp(int x, int y) const
 {
   SDL_WarpMouseInWindow(m_window->GetSDLWindow(), x, y);
+  // We don't set position because it will be set anyway.
+  // If RelativeMouseMode enabled then it won't, but we still can ignore that fact
 }
 
 void Cursor::SetState(CursorState state)
@@ -39,6 +38,8 @@ void Cursor::Lock()
 
   if(IsHidden())
     SDL_CALL(SDL_SetRelativeMouseMode(SDL_TRUE));
+  else
+    Warp(m_window->GetWindowCenter());
 }
 
 void Cursor::Unlock()

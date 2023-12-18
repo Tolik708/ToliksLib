@@ -10,6 +10,8 @@
 
 namespace Tolik
 {
+struct SDL_DisplayMode : ::SDL_DisplayMode {};
+
 Window::~Window()
 {
   m_renderer.Quit();
@@ -21,19 +23,29 @@ Window::Window(bool *running, UserInput *userInput)
   : m_renderer(RenderAPIType::OpenGL) // Here we decide what render API we will use
   , m_running(running)
   , m_userInput(userInput)
-  , m_cursor(this)
+  , m_cursor(this, m_userInput->GetAxis(InputAxis::MousePosition))
 {
   SDL_CALL(SDL_Init(SDL_INIT_EVERYTHING));
-  SDL_CALL(m_window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 500, 500, m_renderer.GetSDLWindowFlags()));
-  SDL_GetWindowSize(m_window, &m_width, &m_height);
+
+  m_displayMode = new SDL_DisplayMode();
+  SDL_CALL(SDL_GetCurrentDisplayMode(0, m_displayMode));
+  m_windowSize = Vec2i(m_displayMode->w / 2, m_displayMode->h / 2);
+  m_windowCenter = m_windowSize / 2;
+
+  SDL_CALL(m_window = SDL_CreateWindow("Test", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, m_windowSize.x(), m_windowSize.y(), m_renderer.GetSDLWindowFlags()));
 
   m_renderer.SetWindow(this);
 }
 
-void Window::ListenToEvents()
+void Window::Update()
 {
   m_userInput->Update();
   m_cursor.Update();
+  ListenToEvents();
+}
+
+void Window::ListenToEvents()
+{
 
   SDL_Event event;
   while(SDL_PollEvent(&event))
@@ -46,6 +58,8 @@ void Window::ListenToEvents()
     case SDL_QUIT:
       *m_running = false;
       break;
+
+    // Input
     case SDL_KEYDOWN:
       m_userInput->UpdateKeyDown(static_cast<uint16_t>(SDLScancodeToKeyID[event.key.keysym.scancode]));
       break;
@@ -63,25 +77,20 @@ void Window::ListenToEvents()
                                           Vec2(event.wheel.y, event.wheel.x) : Vec2(event.wheel.x, event.wheel.y));
       break;
     case SDL_MOUSEMOTION:
-      if(m_cursor.IsLocked() && !m_cursor.IsHidden())
-      {
-        Debug::GetLogger().Info(event.motion.xrel, event.motion.yrel);
-        m_userInput->UpdateMousePosition(Vec2i(0, 0), Vec2i(event.motion.xrel, event.motion.yrel));
-      }
-      else if(m_cursor.IsLocked())
-        m_userInput->UpdateMousePosition(Vec2i::zero(), Vec2i(event.motion.xrel, event.motion.yrel));
-      else
-        m_userInput->UpdateMousePosition(Vec2i(event.motion.x, event.motion.y), Vec2i(event.motion.xrel, event.motion.yrel));
+      MouseMotion(event);
       break;
+    
+    // Window events
     case SDL_WINDOWEVENT:
       switch(event.window.type)
       {
-        case SDL_WINDOWEVENT_RESIZED:
-          SDL_GetWindowSize(m_window, &m_width, &m_height);
-          m_renderer.UpdateDrawbleSize();
+        case SDL_WINDOWEVENT_SIZE_CHANGED:
+          WindowResized(event);
           break;
       }
       break;
+
+    // Unused events
     case SDL_TEXTINPUT:
       break;
     default:
@@ -89,5 +98,26 @@ void Window::ListenToEvents()
       break;
     }
   }
+}
+
+void Window::WindowResized(const SDL_Event &event)
+{
+  m_windowSize = Vec2i(event.window.data2, event.window.data2);
+  m_windowCenter = m_windowSize / 2;
+  m_renderer.UpdateDrawbleSize();
+}
+
+void Window::MouseMotion(const SDL_Event &event)
+{
+  if(m_cursor.IsLocked() && !m_cursor.IsHidden())
+  {
+    if(event.motion.xrel != 0 || event.motion.yrel != 0)
+      m_cursor.Warp(m_windowCenter);
+    m_userInput->UpdateMousePosition(Vec2i::zero(), Vec2i(event.motion.xrel, event.motion.yrel));
+  }
+  else if(m_cursor.IsLocked())
+    m_userInput->UpdateMousePosition(Vec2i::zero(), Vec2i(event.motion.xrel, event.motion.yrel));
+  else
+    m_userInput->UpdateMousePosition(Vec2i(event.motion.x, event.motion.y), Vec2i(event.motion.xrel, event.motion.yrel));
 }
 }

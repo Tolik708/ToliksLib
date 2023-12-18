@@ -117,9 +117,9 @@ template<typename T, typename Vector1Type, typename Vector2Type>
 inline constexpr Vec3T<T> Vector<Type, Size, Group>::Cross(const Vec3T<Vector1Type> &vector1, const Vec3T<Vector2Type> &vector2)
 {
   static_assert(Size == 3, "Can't call cross product on non 3d vectors");
-  return Vec3T<T>(static_cast<T>(vector1.template Get<1>() * vector2.template Get<2>() - vector1.template Get<2>() * vector2.template Get<1>()),
-                  static_cast<T>(vector1.template Get<2>() * vector2.template Get<0>() - vector1.template Get<0>() * vector2.template Get<2>()),
-                  static_cast<T>(vector1.template Get<0>() * vector2.template Get<1>() - vector1.template Get<1>() * vector2.template Get<0>()));
+  return Vec3T<T>(static_cast<T>(vector1.y() * vector2.z() - vector1.z() * vector2.y()),
+                  static_cast<T>(vector1.z() * vector2.x() - vector1.x() * vector2.z()),
+                  static_cast<T>(vector1.x() * vector2.y() - vector1.y() * vector2.x()));
 }
 
 template<typename Type, std::size_t Size, VectorFlag Group>
@@ -128,10 +128,10 @@ inline constexpr QuaT<T> Vector<Type, Size, Group>::FromAxis(Vec3T<VectorType> v
 {
   angle *= 0.5;
   DefFloatType sinAngle = sin(angle);
-  return QuaT<T>(static_cast<T>(vector.template Get<0>() * sinAngle),
-                 static_cast<T>(vector.template Get<1>() * sinAngle),
-                 static_cast<T>(vector.template Get<2>() * sinAngle),
-                 static_cast<T>(cos(angle)));
+  return QuaT<T>(static_cast<T>(vector.x() * sinAngle),
+                        static_cast<T>(vector.y() * sinAngle),
+                        static_cast<T>(vector.z() * sinAngle),
+                        static_cast<T>(cos(angle)));
 }
 
 template<typename Type, std::size_t Size, VectorFlag Group>
@@ -148,22 +148,22 @@ inline constexpr QuaT<T> Vector<Type, Size, Group>::FromEuler(DefFloatType pitch
   yaw =   sin(yaw);
   roll =  sin(roll);
   return QuaT<T> (static_cast<T>(pitch)    * static_cast<T>(cosYaw) * static_cast<T>(cosRoll) - static_cast<T>(cosPitch) * static_cast<T>(yaw)    * static_cast<T>(roll),
-                  static_cast<T>(cosPitch) * static_cast<T>(yaw)    * static_cast<T>(cosRoll) + static_cast<T>(pitch)    * static_cast<T>(cosYaw) * static_cast<T>(roll),
-                  static_cast<T>(cosPitch) * static_cast<T>(cosYaw) * static_cast<T>(roll)    - static_cast<T>(pitch)    * static_cast<T>(yaw)    * static_cast<T>(cosRoll),
-                  static_cast<T>(cosPitch) * static_cast<T>(cosYaw) * static_cast<T>(cosRoll) + static_cast<T>(pitch)    * static_cast<T>(yaw)    * static_cast<T>(roll));
+                         static_cast<T>(cosPitch) * static_cast<T>(yaw)    * static_cast<T>(cosRoll) + static_cast<T>(pitch)    * static_cast<T>(cosYaw) * static_cast<T>(roll),
+                         static_cast<T>(cosPitch) * static_cast<T>(cosYaw) * static_cast<T>(roll)    - static_cast<T>(pitch)    * static_cast<T>(yaw)    * static_cast<T>(cosRoll),
+                         static_cast<T>(cosPitch) * static_cast<T>(cosYaw) * static_cast<T>(cosRoll) + static_cast<T>(pitch)    * static_cast<T>(yaw)    * static_cast<T>(roll));
 }
 
 template<typename Type, std::size_t Size, VectorFlag Group>
 template<typename VectorType, typename T>
 inline void Vector<Type, Size, Group>::GetAxisAndAngle(Vec3T<VectorType> &axis, T &angle) const
 {
-  DefFloatType scale = sqrt(static_cast<DefFloatType>(1 - Get<3>() * Get<3>()));
+  DefFloatType scale = sqrt(static_cast<DefFloatType>(1 - w() * w()));
   if(scale == 0)
     axis.array = { 1, 0, 0 };
   else
-    axis.array = { Get<0, VectorType>() / scale, Get<0, VectorType>() / scale, Get<0, VectorType>() / scale };
+    axis.array = { static_cast<VectorType>(x()) / scale, static_cast<VectorType>(x()) / scale, static_cast<VectorType>(x()) / scale };
   
-  angle = static_cast<T>(acos(static_cast<DefFloatType>(Get<3>())) * 2);
+  angle = static_cast<T>(acos(static_cast<DefFloatType>(w())) * 2);
 }
 
 template <typename Type, std::size_t Size, VectorFlag Group>
@@ -171,9 +171,9 @@ template <typename T>
 inline constexpr Vec3T<T> Vector<Type, Size, Group>::GetEulerAngles() const
 {
   return Vec3T<T>(
-    atan2(2 * (Get<3>() * Get<0>() + Get<1>() * Get<2>()), 1 - 2 * (Get<0>() * Get<0>() + Get<1>() * Get<1>())),
-    2 * atan2(sqrt(1 + 2 * (Get<3>() * Get<1>() - Get<0>() * Get<2>())), sqrt(1 - 2 * ( Get<3>() * Get<1>() - Get<0>() * Get<2>()))) - (Constants::PI / 2),
-    atan2(2 * (Get<3>() * Get<2>() + Get<1>() * Get<0>()), 1 - 2 * ( Get<1>() * Get<1>() + Get<2>() * Get<2>()))
+    atan2(2 * (w() * x() + y() * z()), 1 - 2 * (x() * x() + y() * y())),
+    2 * atan2(sqrt(1 + 2 * (w() * y() - x() * z())), sqrt(1 - 2 * (w() * y() - x() * z()))) - (Constants::PI / 2),
+    atan2(2 * (w() * z() + y() * x()), 1 - 2 * (y() * y() + z() * z()))
   );
 }
 
@@ -215,18 +215,18 @@ template<typename Type, std::size_t Size, VectorFlag Group>
 template<typename QuaternionType, bool IsQ, typename std::enable_if_t<IsQ, bool>>
 inline constexpr QuaT<QuaternionType> Vector<Type, Size, Group>::operator*(const QuaT<QuaternionType> &quaternion) const
 {
-  return QuaT<Type>(Get<0>() * quaternion.template Get<3, Type>() + Get<3>() * quaternion.template Get<0, Type>() + Get<2>() * quaternion.template Get<1, Type>() - Get<1>() * quaternion.template Get<2, Type>(),
-                    Get<1>() * quaternion.template Get<3, Type>() - Get<2>() * quaternion.template Get<0, Type>() + Get<3>() * quaternion.template Get<1, Type>() + Get<0>() * quaternion.template Get<2, Type>(),
-                    Get<2>() * quaternion.template Get<3, Type>() + Get<1>() * quaternion.template Get<0, Type>() - Get<0>() * quaternion.template Get<1, Type>() + Get<3>() * quaternion.template Get<2, Type>(),
-                    Get<3>() * quaternion.template Get<3, Type>() - Get<0>() * quaternion.template Get<0, Type>() - Get<1>() * quaternion.template Get<1, Type>() - Get<2>() * quaternion.template Get<2, Type>());
+  return QuaT<Type>(x() * static_cast<Type>(quaternion.w()) + w() * static_cast<Type>(quaternion.x()) + z() * static_cast<Type>(quaternion.y()) - y() * static_cast<Type>(quaternion.z()),
+                    y() * static_cast<Type>(quaternion.w()) - z() * static_cast<Type>(quaternion.x()) + w() * static_cast<Type>(quaternion.y()) + x() * static_cast<Type>(quaternion.z()),
+                    z() * static_cast<Type>(quaternion.w()) + y() * static_cast<Type>(quaternion.x()) - x() * static_cast<Type>(quaternion.y()) + w() * static_cast<Type>(quaternion.z()),
+                    w() * static_cast<Type>(quaternion.w()) - x() * static_cast<Type>(quaternion.x()) - y() * static_cast<Type>(quaternion.y()) - z() * static_cast<Type>(quaternion.z()));
 }
 
 template <typename Type, std::size_t Size, VectorFlag Group>
 template <typename VectorType, bool IsQ, typename std::enable_if_t<IsQ, bool>>
 inline constexpr Vec3T<VectorType> Vector<Type, Size, Group>::operator*(Vec3T<VectorType> vector) const
 {
-  QuaT<Type> result = (*this) * (QuaT<Type>(vector.template Get<0>(), vector.template Get<1>(), vector.template Get<2>()) * GetConjugate());
-  return Vec3T<VectorType>(result.template Get<0>(), result.template Get<1>(), result.template Get<2>());
+  QuaT<Type> result = (*this) * (QuaT<Type>(vector.x(), vector.y(), vector.z()) * GetConjugate());
+  return Vec3T<VectorType>(result.x(), result.y(), result.z());
 }
 
 #define VECTOR_OPERATOR_DEFENITION(oper) \
@@ -235,9 +235,9 @@ template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> \
 inline constexpr std::conditional_t<(VectorSize > Size), Vector<VectorType, VectorSize, VectorGroup>, Vector<Type, Size, Group>> Vector<Type, Size, Group>::operator oper (const Vector<VectorType, VectorSize, VectorGroup> &vector) const \
 { \
   std::conditional_t<(VectorSize > Size), Vector<VectorType, VectorSize, VectorGroup>, Self> result; \
-  using ResultType = std::conditional_t<(VectorSize > Size), VectorType, Type>; \
+  using ReturnType = std::conditional_t<(VectorSize > Size), VectorType, Type>; \
   for(std::size_t i = 0; i < std::min(VectorSize, Size); i++) \
-    result[i] = Get<ResultType>(i) oper vector.template Get<ResultType>(i); \
+    result[i] = static_cast<ReturnType>(data[i]) oper static_cast<ReturnType>(vector[i]); \
   return result; \
 } \
  \
