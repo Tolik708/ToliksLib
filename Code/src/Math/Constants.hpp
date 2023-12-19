@@ -3,11 +3,12 @@
 
 namespace Tolik
 {
-using DefaultPrecisionType = float;
+using DefFloatType = float;
+using DefIntType = int;
 
 namespace Constants
 {
-constexpr DefaultPrecisionType PI = 3.1415926;
+constexpr DefFloatType PI = 3.1415926;
 }
 }
 

@@ -8,6 +8,9 @@
 #include <vector>
 #include <stdint.h>
 #include <cassert>
+#include <iostream>
+
+#include "Utilities/EnumFunctions.hpp"
 
 #include "Utilities/EnumFunctions.hpp"
 

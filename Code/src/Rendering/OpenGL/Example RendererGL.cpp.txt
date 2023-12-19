@@ -25,7 +25,7 @@ void Renderer::InitGL()
 void Renderer::SetWindowGL(Window *window)
 {
   m_window = window;
-  SDL_CALL(m_context = SDL_GL_CreateContext(m_window->GetWindow()));
+  SDL_CALL(m_context = SDL_GL_CreateContext(m_window->GetSDLWindow()));
   GL_CALL(gladLoadGLLoader(SDL_GL_GetProcAddress));
 
   UpdateDrawbleSize();
@@ -55,7 +55,7 @@ void Renderer::RenderMeshGL(MeshGL *mesh) const
 
 void Renderer::EndFrameGL() const
 {
-  SDL_GL_SwapWindow(m_window->GetWindow());
+  SDL_GL_SwapWindow(m_window->GetSDLWindow());
 }
 
 void Renderer::DebugGL(void *data) const
@@ -65,7 +65,7 @@ void Renderer::DebugGL(void *data) const
 
 void Renderer::UpdateDrawbleSizeGL()
 {
-  SDL_GL_GetDrawableSize(m_window->GetWindow(), &m_width, &m_height);
+  SDL_GL_GetDrawableSize(m_window->GetSDLWindow(), &m_width, &m_height);
 }
 
 uint32_t Renderer::GetSDLWindowFlagsGL() const

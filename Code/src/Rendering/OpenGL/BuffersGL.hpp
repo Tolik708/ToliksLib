@@ -15,14 +15,15 @@ struct Vertex;
 class VBOGL
 {
 public:
-  inline VBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
+  VBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
+  template<typename T> VBOGL(T *firstElement, std::size_t count) { GL_CALL(glGenBuffers(1, &m_id)); BufferData(firstElement, count); }
   inline void Delete() const { GL_CALL(glDeleteBuffers(1, &m_id)); }
 
   inline void Bind() const { GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, m_id)); }
   inline void Unbind() const { GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0)); }
 
   template<typename T>
-  inline void BufferData(T *firstElement, std::size_t numberOfElements) const;
+  inline void BufferData(T *firstElement, std::size_t count) const;
 
 private:
   uint32_t m_id;
@@ -32,36 +33,37 @@ private:
 class EBOGL
 {
 public:
-  inline EBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
+  EBOGL() { GL_CALL(glGenBuffers(1, &m_id)); }
+  template<typename T> EBOGL(T *firstElement, std::size_t count) { GL_CALL(glGenBuffers(1, &m_id)); BufferData(firstElement, count); }
   inline void Delete() const { GL_CALL(glDeleteBuffers(1, &m_id)); }
 
   inline void Bind() const { GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id)); }
   inline void Unbind() const { GL_CALL(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0)); }
 
   template<typename T>
-  inline void BufferData(T *firstElement, std::size_t numberOfElements);
+  inline void BufferData(T *firstElement, std::size_t count);
   inline constexpr std::size_t GetCount() { return m_count; }
-  inline constexpr GLenum GetGLType() { return m_glType; }
+  inline constexpr uint32_t GetGLType() { return m_glType; }
 
 private:
   uint32_t m_id;
   std::size_t m_count;
-  GLenum m_glType;
+  uint32_t m_glType;
 };
 
 template<typename T>
-inline void VBOGL::BufferData(T *firstElement, std::size_t numberOfElements) const
+inline void VBOGL::BufferData(T *firstElement, std::size_t count) const
 {
   Bind();
-  GL_CALL(glBufferData(GL_ARRAY_BUFFER, numberOfElements * sizeof(T), firstElement, GL_STATIC_DRAW));
+  GL_CALL(glBufferData(GL_ARRAY_BUFFER, count * sizeof(T), firstElement, GL_STATIC_DRAW));
 }
 
 template<typename T>
-inline void EBOGL::BufferData(T *firstElement, std::size_t numberOfElements)
+inline void EBOGL::BufferData(T *firstElement, std::size_t count)
 {
   Bind();
-  GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, numberOfElements * sizeof(T), firstElement, GL_STATIC_DRAW));
-  m_count = numberOfElements;
+  GL_CALL(glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(T), firstElement, GL_STATIC_DRAW));
+  m_count = count;
   m_glType = GetGLTypeFromType<T>();
 }
 }

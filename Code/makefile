@@ -6,7 +6,7 @@ BUILDDIR := build
 #variables
 APPNAME :=
 DEBUG := -g
-FLAGS := -Wall -fmax-errors=10 -Wshadow
+FLAGS := -Wall -fmax-errors=10 -Wshadow #-funroll-loops
 LIBSTOCOMPILE :=
 LIBS := -I$(LIBDIR)/stb_image -I$(LIBDIR)/ToliksLib/Code/src -I$(LIBDIR)/glm -I$(LIBDIR)/glad/include -I$(LIBDIR)/SDL2/include -L$(LIBDIR)/SDL2/lib -lmingw32 -lSDL2main -lSDL2
 THIRDPARTY :=
@@ -17,7 +17,7 @@ PROGRESS := 0
 else
 PROGRESS := 1 #here put user preference
 endif
-DEFINES := DEBUG
+DEFINES :=
 STDVERSION := -std=c++17
 INCLUDEFILESEXTENTIONS := hpp tpp inl
 INCLUDEEVERYFOLDER := 

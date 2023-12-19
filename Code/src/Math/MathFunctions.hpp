@@ -8,9 +8,9 @@
 
 namespace Tolik
 {
-template<typename T> constexpr std::conditional_t<std::is_integral_v<T>, DefaultPrecisionType, T> DegreesToRadians(T degrees)
+template<typename T> constexpr std::conditional_t<std::is_integral_v<T>, DefFloatType, T> DegreesToRadians(T degrees)
 { static_assert(std::is_arithmetic_v<T>, "Can't convert non arithmetic type to radians"); return degrees * (Constants::PI / 180); }
-template<typename T> constexpr std::conditional_t<std::is_integral_v<T>, DefaultPrecisionType, T> RadiansToDegrees(T radians)
+template<typename T> constexpr std::conditional_t<std::is_integral_v<T>, DefFloatType, T> RadiansToDegrees(T radians)
 { static_assert(std::is_arithmetic_v<T>, "Can't convert non arithmetic type to degrees"); return radians * (180 / Constants::PI); }
 }
 

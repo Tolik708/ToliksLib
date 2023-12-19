@@ -5,6 +5,7 @@
 #include <limits>
 #include <math.h>
 #include <iostream>
+#include <stdint.h>
 
 #include "Utilities/TypeFunctions.hpp"
 #include "Utilities/HashFunctions.hpp"
@@ -34,18 +35,22 @@ template<typename T1, auto A1, auto A2>
 constexpr bool IsVectorClass<Vector<T1, A1, A2>> = true;
 
 
-using Qua = Vector<DefaultPrecisionType, 4, VectorFlag::Quaternion>;
+using Qua = Vector<DefFloatType, 4, VectorFlag::Quaternion>;
 template<typename Type> using QuaT = Vector<Type, 4, VectorFlag::Quaternion>;
 
 using Color32 = Vector<uint8_t, 4, VectorFlag::Color>;
 using Color24 = Vector<uint8_t, 3, VectorFlag::Color>;
-using UnitColor = Vector<DefaultPrecisionType, 4, VectorFlag::Color>;
+using UnitColor = Vector<DefFloatType, 4, VectorFlag::Color>;
 template<typename Type, std::size_t Size> using Color = Vector<Type, Size, VectorFlag::Color>;
 
-using Vec4 = Vector<DefaultPrecisionType, 4, VectorFlag::Vector>;
-using Vec3 = Vector<DefaultPrecisionType, 3, VectorFlag::Vector>;
-using Vec2 = Vector<DefaultPrecisionType, 2, VectorFlag::Vector>;
-using Vec1 = Vector<DefaultPrecisionType, 1, VectorFlag::Vector>;
+using Vec4 = Vector<DefFloatType, 4, VectorFlag::Vector>;
+using Vec3 = Vector<DefFloatType, 3, VectorFlag::Vector>;
+using Vec2 = Vector<DefFloatType, 2, VectorFlag::Vector>;
+using Vec1 = Vector<DefFloatType, 1, VectorFlag::Vector>;
+using Vec4i = Vector<DefIntType, 4, VectorFlag::Vector>;
+using Vec3i = Vector<DefIntType, 3, VectorFlag::Vector>;
+using Vec2i = Vector<DefIntType, 2, VectorFlag::Vector>;
+using Vec1i = Vector<DefIntType, 1, VectorFlag::Vector>;
 template<typename Type> using Vec4T = Vector<Type, 4, VectorFlag::Vector>;
 template<typename Type> using Vec3T = Vector<Type, 3, VectorFlag::Vector>;
 template<typename Type> using Vec2T = Vector<Type, 2, VectorFlag::Vector>;
@@ -111,7 +116,7 @@ namespace Detail
   };
 
   // Unit Color
-  template<> struct VectorConstants<DefaultPrecisionType, 4, VectorFlag::Color>
+  template<> struct VectorConstants<DefFloatType, 4, VectorFlag::Color>
   {
     static inline constexpr UnitColor black();
     static inline constexpr UnitColor white();
@@ -135,6 +140,8 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
   inline constexpr static std::size_t size = Size;
   
   std::array<Type, Size> data = {};
+
+  // Constructors
   
   constexpr Vector() = default;
   constexpr Vector(const std::array<Type, Size> &newArray) : data(newArray) {}
@@ -170,7 +177,7 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
   template<typename VectorType, VectorFlag VectorGroup, std::size_t S = Size, typename T1, std::enable_if_t<S == 4, bool> = true> constexpr Vector(T1 t1, const Vector<VectorType, 3, VectorGroup> &vector) : data{ static_cast<Type>(t1), static_cast<Type>(vector.x()), static_cast<Type>(static_cast<Type>(vector.y())), static_cast<Type>(vector.z()) } {}
 
   template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> constexpr Vector(const Vector<VectorType, VectorSize, VectorGroup> &vector) { for(std::size_t i = 0; i < std::min(Size, VectorSize); i++) data[i] = static_cast<Type>(vector[i]); }  
-  template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> constexpr operator Vector<VectorType, VectorSize, VectorGroup>() { return Vector<VectorType, VectorSize, VectorGroup>(*this); }
+  template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> constexpr explicit operator Vector<VectorType, VectorSize, VectorGroup>() { return Vector<VectorType, VectorSize, VectorGroup>(*this); }
 
   #ifdef GLM_SETUP_INCLUDED
   template<typename VectorType, glm::vec1::length_type VectorSize, glm::qualifier VectorQualifier> constexpr operator glm::vec<VectorSize, VectorType, VectorQualifier>() { return (*this).ToGlm(); }
@@ -194,14 +201,14 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
 
   // Functions
 
-  template<typename T = DefaultPrecisionType> inline constexpr T Magnitude() const { return static_cast<T>(sqrt(Dot<T>(*this, *this))); }
-  template<typename T = DefaultPrecisionType> inline constexpr T SquareMagnitude() const { return Dot<T>(*this, *this); }
-  template<typename T = DefaultPrecisionType, typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr T Dot(const Vector<VectorType, VectorSize, VectorGroup> &vector) const { return Dot(*this, vector); }
-  template<typename T = DefaultPrecisionType, typename VectorType> inline constexpr Self Cross(const Vec3T<VectorType> &vector) const { return Cross(*this, vector); }
+  template<typename T = DefFloatType> inline constexpr T Magnitude() const { return static_cast<T>(sqrt(Dot<T>(*this, *this))); }
+  template<typename T = DefFloatType> inline constexpr T SquareMagnitude() const { return Dot<T>(*this, *this); }
+  template<typename T = DefFloatType, typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr T Dot(const Vector<VectorType, VectorSize, VectorGroup> &vector) const { return Dot(*this, vector); }
+  template<typename T = DefFloatType, typename VectorType> inline constexpr Self Cross(const Vec3T<VectorType> &vector) const { return Cross(*this, vector); }
   inline constexpr Self Normalized() const;
   inline void Normalize();
-  inline void ClampMagnitude(DefaultPrecisionType min, DefaultPrecisionType max) { SetMagnitude(std::min(std::max(Magnitude(), min), max)); }
-  inline void SetMagnitude(DefaultPrecisionType newMagnitude) { Normalize(); for(std::size_t i = 0; i < Size; i++) data[i] *= newMagnitude; }
+  inline void ClampMagnitude(DefFloatType min, DefFloatType max) { SetMagnitude(std::min(std::max(Magnitude(), min), max)); }
+  inline void SetMagnitude(DefFloatType newMagnitude) { Normalize(); for(std::size_t i = 0; i < Size; i++) data[i] *= newMagnitude; }
   #ifdef GLM_SETUP_INCLUDED
   template<typename T = Type, std::size_t S = Size, std::enable_if_t<S == 1  && !isQuaternion, bool> = true> inline constexpr glm::vec<1, T> ToGlm() const { return glm::vec<1, T>(static_cast<T>(x())); }
   template<typename T = Type, std::size_t S = Size, std::enable_if_t<S == 2  && !isQuaternion, bool> = true> inline constexpr glm::vec<2, T> ToGlm() const { return glm::vec<2, T>(static_cast<T>(x()), static_cast<T>(y())); }
@@ -213,42 +220,45 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
   
   // Acces
 
-  // Functions 'At' perfrom bounce checking and assert if needed.
-  // Functions 'Get' gets values as values. Mainly used in function definitions of class.
-  // Operator [] gets reference to value.
-
-  // Don't want use such method, because return will be inlined anyway.
-  // template<typename T> using ReturnType = std::conditional_t<sizeof(T) <= sizeof(nullptr), T, const T &>;
-
-  // Return by value because I don't want to create extra references wich lifetime is undefined.
-
-  inline constexpr Type x() { static_assert(Size > 0, "No parametr x in Vector less then 1"); return data[0]; }
-  inline constexpr Type y() { static_assert(Size > 1, "No parametr y in Vector less then 2"); return data[1]; }
-  inline constexpr Type z() { static_assert(Size > 2, "No parametr z in Vector less then 3"); return data[2]; }
-  inline constexpr Type w() { static_assert(Size > 3, "No parametr w in Vector less then 4"); return data[3]; }
-  inline constexpr const Type &x() const { static_assert(Size > 0, "No parametr x in Vector less then 1"); return data[0]; }
+  inline constexpr Type &x() { return data[0]; }
+  inline constexpr Type &y() { static_assert(Size > 1, "No parametr y in Vector less then 2"); return data[1]; }
+  inline constexpr Type &z() { static_assert(Size > 2, "No parametr z in Vector less then 3"); return data[2]; }
+  inline constexpr Type &w() { static_assert(Size > 3, "No parametr w in Vector less then 4"); return data[3]; }
+  inline constexpr const Type &x() const { return data[0]; }
   inline constexpr const Type &y() const { static_assert(Size > 1, "No parametr y in Vector less then 2"); return data[1]; }
   inline constexpr const Type &z() const { static_assert(Size > 2, "No parametr z in Vector less then 3"); return data[2]; }
   inline constexpr const Type &w() const { static_assert(Size > 3, "No parametr w in Vector less then 4"); return data[3]; }
-  inline constexpr Type r() { static_assert(Size > 0, "No parametr r in Vector less then 1"); return data[0]; }
+  inline constexpr Type r() { return data[0]; }
   inline constexpr Type g() { static_assert(Size > 1, "No parametr g in Vector less then 2"); return data[1]; }
   inline constexpr Type b() { static_assert(Size > 2, "No parametr b in Vector less then 3"); return data[2]; }
   inline constexpr Type a() { static_assert(Size > 3, "No parametr a in Vector less then 4"); return data[3]; }
-  inline constexpr const Type &r() const { static_assert(Size > 0, "No parametr r in Vector less then 1"); return data[0]; }
+  inline constexpr const Type &r() const { return data[0]; }
   inline constexpr const Type &g() const { static_assert(Size > 1, "No parametr g in Vector less then 2"); return data[1]; }
   inline constexpr const Type &b() const { static_assert(Size > 2, "No parametr b in Vector less then 3"); return data[2]; }
   inline constexpr const Type &a() const { static_assert(Size > 3, "No parametr a in Vector less then 4"); return data[3]; }
-  inline constexpr Type s() { static_assert(Size > 0, "No parametr s in Vector less then 1"); return data[0]; }
-  inline constexpr Type t() { static_assert(Size > 1, "No parametr t in Vector less then 2"); return data[1]; }
-  inline constexpr Type p() { static_assert(Size > 2, "No parametr p in Vector less then 3"); return data[2]; }
-  inline constexpr Type q() { static_assert(Size > 3, "No parametr q in Vector less then 4"); return data[3]; }
-  inline constexpr const Type &s() const { static_assert(Size > 0, "No parametr s in Vector less then 1"); return data[0]; }
+  inline constexpr Type &s() { return data[0]; }
+  inline constexpr Type &t() { static_assert(Size > 1, "No parametr t in Vector less then 2"); return data[1]; }
+  inline constexpr Type &p() { static_assert(Size > 2, "No parametr p in Vector less then 3"); return data[2]; }
+  inline constexpr Type &q() { static_assert(Size > 3, "No parametr q in Vector less then 4"); return data[3]; }
+  inline constexpr const Type &s() const { return data[0]; }
   inline constexpr const Type &t() const { static_assert(Size > 1, "No parametr t in Vector less then 2"); return data[1]; }
   inline constexpr const Type &p() const { static_assert(Size > 2, "No parametr p in Vector less then 3"); return data[2]; }
   inline constexpr const Type &q() const { static_assert(Size > 3, "No parametr q in Vector less then 4"); return data[3]; }
 
-  template<typename T = Type> inline constexpr T At(std::size_t index) const { assert((index < Size, "Too big index")); return static_cast<T>(data[index]); }
-  template<std::size_t Index, typename T = Type> inline constexpr T At() const { static_assert(Index < Size, "Too big index"); return static_cast<T>(data[Index]); }
+  // Performes bounds checking
+  template<typename T = Type> inline constexpr const T &At(std::size_t index) const { assert((index < Size, "Too big index")); return static_cast<T>(data[index]); }
+  // Performes bounds checking
+  template<std::size_t Index, typename T = Type> inline constexpr const T &At() const { static_assert(Index < Size, "Too big index"); return static_cast<T>(data[Index]); }
+  // Performes bounds checking
+  template<typename T = Type> inline constexpr T &At(std::size_t index) { assert((index < Size, "Too big index")); return static_cast<T>(data[index]); }
+  // Performes bounds checking
+  template<std::size_t Index, typename T = Type> inline constexpr T &At() { static_assert(Index < Size, "Too big index"); return static_cast<T>(data[Index]); }
+  
+  // Just gets value
+  template<std::size_t Index, typename T = Type> inline constexpr T Get() const { return static_cast<T>(data[Index]); }
+  // Just gets value
+  template<typename T = Type> inline constexpr T Get(std::size_t index) const { return static_cast<T>(data[index]); }
+
   inline Type &operator[](std::size_t index) { return data[index]; }
   inline constexpr Type operator[](std::size_t index) const { return data[index]; }
 
@@ -274,10 +284,10 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
 
   // Static functions
 
-  template<typename T = DefaultPrecisionType, typename Vector1Type, typename Vector2Type, std::size_t VectorSize, VectorFlag Vector1Group, VectorFlag Vector2Group> static constexpr inline T Dot(const Vector<Vector1Type, VectorSize, Vector1Group> &vector1, const Vector<Vector2Type, VectorSize, Vector2Group> &vector2);
+  template<typename T = DefFloatType, typename Vector1Type, typename Vector2Type, std::size_t VectorSize, VectorFlag Vector1Group, VectorFlag Vector2Group> static constexpr inline T Dot(const Vector<Vector1Type, VectorSize, Vector1Group> &vector1, const Vector<Vector2Type, VectorSize, Vector2Group> &vector2);
   template<typename T = Type, typename Vector1Type, typename Vector2Type> static inline constexpr Vec3T<T> Cross(const Vec3T<Vector1Type> &vector1, const Vec3T<Vector2Type> &vector2);
-  template<typename T = DefaultPrecisionType, typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> static inline constexpr T Magnitude(const Vector<VectorType, VectorSize, VectorGroup> &vector) { return vector.template Magnitude<T>(); }
-  template<typename T = DefaultPrecisionType, typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> static inline constexpr T SquareMagnitude(const Vector<VectorType, VectorSize, VectorGroup> &vector) { return vector.template SquareMagnitude<T>(); }
+  template<typename T = DefFloatType, typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> static inline constexpr T Magnitude(const Vector<VectorType, VectorSize, VectorGroup> &vector) { return vector.template Magnitude<T>(); }
+  template<typename T = DefFloatType, typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> static inline constexpr T SquareMagnitude(const Vector<VectorType, VectorSize, VectorGroup> &vector) { return vector.template SquareMagnitude<T>(); }
   static inline constexpr const Self &Min(const Self &vector1, const Self &vector2) { return vector1.Magnitude() < vector2.Magnitude() ? vector1 : vector2; }
   static inline constexpr const Self &Max(const Self &vector1, const Self &vector2) { return vector1.Magnitude() > vector2.Magnitude() ? vector1 : vector2; }
 
@@ -285,11 +295,11 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
   // Quaternion static functions
 
   // Input values in radians
-  template<typename T = Type, typename VectorType> static inline constexpr QuaT<T> FromEuler(Vec3T<VectorType> vector) { return Self::FromEuler(static_cast<DefaultPrecisionType>(vector.x()), static_cast<DefaultPrecisionType>(vector.y()), static_cast<DefaultPrecisionType>(vector.z())); }
+  template<typename T = Type, typename VectorType> static inline constexpr QuaT<T> FromEuler(Vec3T<VectorType> vector) { return Self::FromEuler(static_cast<DefFloatType>(vector.x()), static_cast<DefFloatType>(vector.y()), static_cast<DefFloatType>(vector.z())); }
   // Input values in radians
-  template<typename T = Type> static constexpr QuaT<T> FromEuler(DefaultPrecisionType pitch = 0, DefaultPrecisionType yaw = 0, DefaultPrecisionType roll = 0);
+  template<typename T = Type> static constexpr QuaT<T> FromEuler(DefFloatType pitch = 0, DefFloatType yaw = 0, DefFloatType roll = 0);
   // Input values in radians
-  template<typename VectorType, typename T = Type> static constexpr QuaT<T> FromAxis(Vec3T<VectorType> vector, DefaultPrecisionType angle);
+  template<typename VectorType, typename T = Type> static constexpr QuaT<T> FromAxis(Vec3T<VectorType> vector, DefFloatType angle);
 
 
   // Operators

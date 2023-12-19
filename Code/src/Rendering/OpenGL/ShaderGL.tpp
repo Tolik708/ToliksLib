@@ -1,11 +1,6 @@
 #ifndef SHADER_GL_TPP
 #define SHADER_GL_TPP
 
-#include <stdint.h>
-#include <string>
-
-#include "glad/glad.h"
-
 namespace Tolik
 {
 template<> inline void ShaderGL::SetUniform<int>(const std::string &name, int value0) const

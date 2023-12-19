@@ -9,9 +9,13 @@
 
 namespace Tolik
 {
+// Settings
+
 const bool Debug::showSDLEvents = false;
 
-const std::unordered_map<GLenum, std::string> Debug::GLErrorsNamesMap =
+
+
+const std::unordered_map<uint32_t, std::string> Debug::GLErrorsNamesMap =
 {
 	{ GL_NO_ERROR,                      "GL_NO_ERROR" },
 	{ GL_INVALID_ENUM,                  "GL_INVALID_ENUM" },

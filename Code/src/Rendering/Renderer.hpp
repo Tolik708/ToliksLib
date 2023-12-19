@@ -2,9 +2,12 @@
 #define RENDERER_HPP
 
 #include <stdint.h>
-// std::size_t
-#include <cstddef>
+#include <set>
+
 #include "Math/Constants.hpp"
+#include "Rendering/OpenGL/MeshGL.hpp"
+#include "Rendering/OpenGL/ResourceManagerGL.hpp"
+#include "Debug/Debug.hpp"
 
 namespace Tolik
 {
@@ -14,16 +17,9 @@ class MeshGL;
 
 struct Vertex
 {
-  Vertex(DefaultPrecisionType newX, DefaultPrecisionType newY, DefaultPrecisionType newZ) : x(newX), y(newY), z(newZ) {}
+  Vertex(DefFloatType newX, DefFloatType newY, DefFloatType newZ) : x(newX), y(newY), z(newZ) {}
   
-  DefaultPrecisionType x, y, z;
-};
-
-struct DefaultVertex : Vertex
-{
-  DefaultVertex(DefaultPrecisionType newX, DefaultPrecisionType newY, DefaultPrecisionType newZ, DefaultPrecisionType newU, DefaultPrecisionType newV) : Vertex(newX, newY, newZ), u(newU), v(newV) {}
-
-  DefaultPrecisionType u, v;
+  DefFloatType x, y, z;
 };
 
 // MeshType is enum that determins what shader and other stuff we will use in creating and rendering mesh
@@ -34,23 +30,29 @@ enum class RenderAPIType : int8_t
   OpenGL
 };
 
-// Yes. I know about virtual functions, but a) they meight be slower; b) you can't use templates
+struct MeshLessThen
+{
+  inline constexpr bool operator()(const Mesh &mesh1, const Mesh &mesh2) { return mesh1.GetMeshType() < mesh2.GetMeshType(); }
+};
 
+// Yes. I know about virtual functions, but a) they meight be slower; b) you can't use templates
 class Renderer
 {
 public:
   // First initialization phase (before creating window)
-  inline Renderer(RenderAPIType api);
+  Renderer(RenderAPIType api);
   // Second initialization phase (after creating window)
   inline void SetWindow(Window *window);
   // Couldn't use destructor because we need to control order of destruction in Window class
   inline void Quit();
 
-  inline void StartFrame(const Camera &camera) const;
-  inline void RenderMesh(void *mesh) const;
+  inline void RenderMesh(Mesh *mesh, std::size_t count = 1);
+
+  inline void StartFrame() const;
+  inline void Render(const Camera &camera);
   inline void EndFrame() const;
 
-  template<typename VertexType, typename IndexType> inline void *CreateMesh(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const;
+  template<typename VertexType, typename IndexType> inline Mesh *CreateMesh(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const;
   
   // Function for debugging. Expected to use const_cast to acces this function
   inline void Debug(void *data);
@@ -68,11 +70,11 @@ private:
 
   void QuitGL();
 
-  void StartFrameGL(const Camera &camera) const;
-  void RenderMeshGL(MeshGL *mesh) const;
+  void StartFrameGL() const;
+  void RenderGL(const Camera &camera);
   void EndFrameGL() const;
 
-  template<typename VertexType, typename IndexType> inline void *CreateMeshGL(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const;
+  template<typename VertexType, typename IndexType> inline Mesh *CreateMeshGL(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const;
 
   void DebugGL(void *data) const;
   void UpdateDrawbleSizeGL();
@@ -84,6 +86,7 @@ private:
   void *m_resources;
   void *m_context;
   Window *m_window;
+  std::multiset<Mesh*, MeshLessThen> meshes;
 };
 }
 
