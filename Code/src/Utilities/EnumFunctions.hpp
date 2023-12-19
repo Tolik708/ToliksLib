@@ -8,7 +8,7 @@
 
 namespace Tolik
 {
-template<typename T> inline std::conditional_t<std::is_enum_v<T>, std::underlying_type_t<T>, T> ToUnderlying(T value)
+template<typename T> inline constexpr std::conditional_t<std::is_enum_v<T>, std::underlying_type_t<T>, T> ToUnderlying(T value)
 {
   static_assert(std::is_enum_v<T> || std::is_arithmetic_v<T>, "Can't cast non enum and non arithmetic value to underlying type");
   if constexpr(std::is_enum_v<T>)
@@ -17,18 +17,27 @@ template<typename T> inline std::conditional_t<std::is_enum_v<T>, std::underlyin
     return value;
 }
 
-template<typename T, typename U> inline T operator|(T value1, U value2) 
+template<typename T, typename U> inline constexpr T operator|(T value1, U value2) 
 {return static_cast<T>(ToUnderlying(value1) | ToUnderlying(value2)); }
-template<typename T, typename U> inline T operator&(T value1, U value2) 
+template<typename T, typename U> inline constexpr T operator&(T value1, U value2) 
 { return static_cast<T>(ToUnderlying(value1) & ToUnderlying(value2)); }
-template<typename T, typename U> inline T operator^(T value1, U value2) 
+template<typename T, typename U> inline constexpr T operator^(T value1, U value2) 
 { return static_cast<T>(ToUnderlying(value1) ^ ToUnderlying(value2)); }
 
-template<typename T, typename U> inline T &operator|=(T &value1, U value2)
+template<typename T, typename U> inline constexpr bool operator==(T value1, U value2) 
+{ return ToUnderlying(value1) == ToUnderlying(value2); }
+template<typename T, typename U> inline constexpr bool operator!=(T value1, U value2) 
+{ return ToUnderlying(value1) != ToUnderlying(value2); }
+template<typename T, typename U> inline constexpr bool operator<(T value1, U value2) 
+{ return ToUnderlying(value1) < ToUnderlying(value2); }
+template<typename T, typename U> inline constexpr bool operator>(T value1, U value2) 
+{ return ToUnderlying(value1) > ToUnderlying(value2); }
+
+template<typename T, typename U> inline constexpr T &operator|=(T &value1, U value2)
 { value1 = static_cast<T>(ToUnderlying(value1) | ToUnderlying(value2)); return value1; }
-template<typename T, typename U> inline T &operator&=(T &value1, U value2)
+template<typename T, typename U> inline constexpr T &operator&=(T &value1, U value2)
 { value1 = static_cast<T>(ToUnderlying(value1) & ToUnderlying(value2)); return value1; }
-template<typename T, typename U> inline T &operator^=(T &value1, U value2)
+template<typename T, typename U> inline constexpr T &operator^=(T &value1, U value2)
 { value1 = static_cast<T>(ToUnderlying(value1) ^ ToUnderlying(value2)); return value1; }
 
 template<typename T, typename std::enable_if_t<std::is_enum_v<T>, bool> = true> inline std::ostream& operator<<(std::ostream& os, T self)

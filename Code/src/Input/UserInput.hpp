@@ -15,15 +15,12 @@ enum class InputAxis : unsigned char
 {
   NONE=0,
   MouseWheel, MouseDelta, MousePosition,
-
-  Count
 };
 
 enum class KeyState : uint8_t
 {
-  NONE=0, Pressed, Down, Up,
-
-  Count
+  NONE=0,
+  Pressed, Down, Up,
 };
 
 class UserInput

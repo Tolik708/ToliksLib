@@ -5,6 +5,8 @@
 
 #include "glad/glad.h"
 
+#include "Debug/Debug.hpp"
+#include "Rendering/Mesh.hpp"
 #include "Rendering/Renderer.hpp"
 #include "Rendering/OpenGL/BuffersGL.hpp"
 #include "Rendering/OpenGL/VAOGL.hpp"
@@ -12,42 +14,38 @@
 
 namespace Tolik
 {
-class Debug;
-
-class MeshGL
+class MeshGL : public Mesh
 {
 public:
-  template<typename VertexType, typename IndexType> inline MeshGL(VertexType *verts, std::size_t vertsCount, IndexType *inds, std::size_t indsCount, ResourceManagerGL *resources, MeshType meshType);
-  inline ~MeshGL();
+  template<typename VertexType, typename IndexType> MeshGL(VertexType *verts, std::size_t vertsCount, IndexType *inds, std::size_t indsCount, ResourceManagerGL *resources, MeshType meshType);
+  ~MeshGL();
 
   inline void Draw();
-  inline constexpr MeshType GetMeshType() const { return m_meshType; }
 
 private:
-  const MeshType m_meshType;
-  // We save shader and draw mode instead of accesing it by m_resourecs because it is expensive call
+  // We save shader and draw mode instead of accesing it by m_resourecs because it's an expensive call
   const ShaderGL shader;
-  const GLenum m_drawMode;
+  const uint32_t m_drawMode;
+
   const VAOGL m_vao;
   const VBOGL m_vbo;
-  
-  EBOGL m_ebo;
 
+  const EBOGL m_ebo;
 };
 
 template<typename VertexType, typename IndexType>
-inline MeshGL::MeshGL(VertexType *verts, std::size_t vertsCount, IndexType *inds, std::size_t indsCount, ResourceManagerGL *resources, MeshType meshType)
-  : m_meshType(meshType)
+MeshGL::MeshGL(VertexType *verts, std::size_t vertsCount, IndexType *inds, std::size_t indsCount, ResourceManagerGL *resources, MeshType meshType)
+  : Mesh(meshType)
   , shader(resources->GetShader(m_meshType))
   , m_drawMode(resources->GetDrawMode(m_meshType))
+  , m_ebo(inds, indsCount)
+  , m_vbo(verts, vertsCount)
 {
-  m_vbo.BufferData(verts, vertsCount);
-  m_ebo.BufferData(inds, indsCount);
   m_vao.AddVBO(m_vbo, resources->GetLayout(m_meshType));
   m_vao.AddEBO(m_ebo);
 }
 
-inline MeshGL::~MeshGL()
+MeshGL::~MeshGL()
 {
   m_vao.Delete();
   m_vbo.Delete();

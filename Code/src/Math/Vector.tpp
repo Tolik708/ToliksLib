@@ -1,11 +1,6 @@
 #ifndef VECTOR_TPP
 #define VECTOR_TPP
 
-#include <type_traits>
-#include <limits>
-#include <math.h>
-#include <iostream>
-
 namespace Tolik
 {
 namespace Detail

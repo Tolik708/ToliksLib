@@ -1,8 +1,8 @@
-#version 410 core
+#version 410 compatibility
 
-out vec4 outFragColor;
+out vec4 out_fragColor;
 
 void main()
 {
-  outFragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+  out_fragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }

@@ -1,10 +1,6 @@
 #ifndef RENDERER_TPP
 #define RENDERER_TPP
 
-#include "Rendering/OpenGL/MeshGL.hpp"
-#include "Rendering/OpenGL/ResourceManagerGL.hpp"
-#include "Debug/Debug.hpp"
-
 namespace Tolik
 {
 // Very important to have this functions inline.
@@ -42,22 +38,27 @@ inline void Renderer::Quit()
   }
 }
 
-inline void Renderer::StartFrame(const Camera &camera) const
+inline void Renderer::RenderMesh(Mesh *mesh, std::size_t count)
+{
+  meshes.insert(mesh, mesh + count);
+}
+
+inline void Renderer::StartFrame() const
 {
   switch (m_api)
   {
   case RenderAPIType::OpenGL:
-    StartFrameGL(camera);
+    StartFrameGL();
     break;
   }
 }
 
-inline void Renderer::RenderMesh(void *mesh) const
+inline void Renderer::Render(const Camera &camera)
 {
-  switch (m_api)
+  switch(m_api)
   {
   case RenderAPIType::OpenGL:
-    RenderMeshGL(static_cast<MeshGL*>(mesh));
+    RenderGL(camera);
     break;
   }
 }
@@ -73,7 +74,7 @@ inline void Renderer::EndFrame() const
 }
 
 template<typename VertexType, typename IndexType>
-inline void *Renderer::CreateMesh(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const
+inline Mesh *Renderer::CreateMesh(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const
 {
   static_assert(std::is_base_of_v<Vertex, VertexType>, "VertexType passed in \'CreateMesh\' must be of type Vertex or inherit from it");
   switch (m_api)
@@ -116,10 +117,8 @@ inline void Renderer::UpdateDrawbleSize()
   }
 }
 
-// Functions that I must define here. Can't wait for modules!
-
 template<typename VertexType, typename IndexType>
-inline void *Renderer::CreateMeshGL(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const
+inline Mesh *Renderer::CreateMeshGL(MeshType meshType, VertexType *verts, std::size_t vertexCount, IndexType *inds, std::size_t indexCount) const
 {
   return new MeshGL(verts, vertexCount, inds, indexCount, static_cast<ResourceManagerGL*>(m_resources), meshType);
 }

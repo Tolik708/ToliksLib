@@ -16,7 +16,7 @@
   
 #define GL_CALL(command) do { \
     command; \
-    while(GLenum error = glGetError()) \
+    while(uint32_t error = glGetError()) \
       Debug::GetLogger("main").Error("\"@3\" in command: @2, line: @1, file: @0", __FILE__, __LINE__, #command, Debug::GLErrorsNamesMap.at(error)); \
   } while(0)
 
@@ -38,7 +38,7 @@ public:
   static void AddLogger(const std::string &name, const Logger &logger);
 
 
-  static const std::unordered_map<GLenum, std::string> GLErrorsNamesMap;
+  static const std::unordered_map<uint32_t, std::string> GLErrorsNamesMap;
 
   static const bool showSDLEvents;
 

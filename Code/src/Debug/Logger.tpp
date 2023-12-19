@@ -1,14 +1,6 @@
 #ifndef LOGGER_TPP
 #define LOGGER_TPP
 
-#include <unordered_map>
-#include <string>
-#include <functional>
-#include <sstream>
-#include <vector>
-#include <stdint.h>
-#include <iostream>
-
 namespace Tolik
 {
 template<typename T, typename... Args>
