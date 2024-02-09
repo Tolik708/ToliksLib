@@ -37,7 +37,7 @@ void TextureGL::BufferData(const std::string &path, const Vec2i &dimensions)
 
   if(m_type == GL_TEXTURE_1D || m_type == GL_PROXY_TEXTURE_1D)
     GL_CALL(glTexImage1D(m_type, 0, format, width, 0, format, GL_UNSIGNED_BYTE, data));
-  else if(dimensions.y() != 0)
+  else if(dimensions != Vec2i::zero())
   {
     const uint32_t bytesPerPixel = static_cast<bool>(m_flags & TextureFlags::IsTransparent) ? 4 : 3;
     const uint32_t textureSize = width * height * bytesPerPixel;
@@ -54,18 +54,16 @@ void TextureGL::BufferData(const std::string &path, const Vec2i &dimensions)
         std::copy(&data[dataStart], &data[dataStart + tileWidth * bytesPerPixel], &formatedData[(i * tileWidth * tileHeight + y * tileWidth) * bytesPerPixel]);
       }
     }
-
-    GL_CALL(glTexImage3D(m_type, 0, format, tileWidth, tileHeight, cellCount, 0, format, GL_UNSIGNED_BYTE, formatedData));
     
+    GL_CALL(glTexImage3D(m_type, 0, format, tileWidth, tileHeight, cellCount, 0, format, GL_UNSIGNED_BYTE, formatedData));
+
     delete [] formatedData;
   }
   else
     GL_CALL(glTexImage2D(m_type, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data));
 
-
   if(static_cast<bool>(m_flags & TextureFlags::GenerateMipmap))
     GL_CALL(glGenerateMipmap(m_type));
-
 
   stbi_image_free(data);
 }

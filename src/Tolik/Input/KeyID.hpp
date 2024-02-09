@@ -11,10 +11,10 @@ namespace Tolik
 {
 // + 1 because each enum has NONE state
 
-constexpr inline uint32_t KeyIDCount         = 245 + 1;
-constexpr inline uint32_t ModKeyCount        = 12  + 1;
-constexpr inline uint32_t MouseButtonIDCount = 3   + 1;
-constexpr inline uint32_t InputAxisCount     = 3   + 1;
+constexpr uint32_t KeyIDCount         = 245 + 1;
+constexpr uint32_t ModKeyCount        = 12  + 1;
+constexpr uint32_t MouseButtonIDCount = 3   + 1;
+constexpr uint32_t InputAxisCount     = 3   + 1;
 
 // KeyID is enum with names of scancodes
 // To check for other keys like question mark '?' you need to check for modifier key shift and slash.
@@ -231,7 +231,7 @@ enum class KeyState : uint32_t
 
 namespace Detail
 {
-constexpr inline KeyID SDLScancodeToKeyID[] =
+constexpr KeyID SDLScancodeToKeyID[] =
 {
   KeyID::NONE,
   KeyID::NONE,

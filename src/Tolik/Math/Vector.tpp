@@ -255,7 +255,53 @@ VECTOR_OPERATOR_DEFENITION(-);
 VECTOR_OPERATOR_DEFENITION(*);
 VECTOR_OPERATOR_DEFENITION(/);
 
+#define VECTOR_BOOL_OPERATOR_DEFENITION(oper) \
+template<typename Type, std::size_t Size, VectorFlag Group> \
+template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> \
+inline constexpr bool Vector<Type, Size, Group>::operator oper (const Vector<VectorType, VectorSize, VectorGroup> &vector) const \
+{ \
+  for(std::size_t i = 0; i < std::min(VectorSize, Size); i++) \
+    if(!(data[i] oper static_cast<Type>(vector[i]))) \
+      return false; \
+  return true; \
+} \
+ \
+template<typename Type, std::size_t Size, VectorFlag Group> \
+template<typename T> \
+inline constexpr bool Vector<Type, Size, Group>::operator oper (T t) const \
+{ \
+  for(std::size_t i = 0; i < Size; i++) \
+    if(!(data[i] oper static_cast<Type>(t))) \
+      return false; \
+  return true; \
+}
+
+VECTOR_BOOL_OPERATOR_DEFENITION(==);
+VECTOR_BOOL_OPERATOR_DEFENITION(<);
+VECTOR_BOOL_OPERATOR_DEFENITION(>);
+
+template<typename Type, std::size_t Size, VectorFlag Group>
+template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup>
+inline constexpr bool Vector<Type, Size, Group>::operator != (const Vector<VectorType, VectorSize, VectorGroup> &vector) const
+{
+  for(std::size_t i = 0; i < std::min(VectorSize, Size); i++)
+    if(data[i] != static_cast<Type>(vector[i]))
+      return true;
+  return false;
+} 
+
+template<typename Type, std::size_t Size, VectorFlag Group>
+template<typename T>
+inline constexpr bool Vector<Type, Size, Group>::operator != (T t) const
+{
+  for(std::size_t i = 0; i < Size; i++)
+    if(data[i] != static_cast<Type>(t))
+      return true;
+  return false;
+}
+
 #undef VECTOR_OPERATOR_DEFENITION
+#undef VECTOR_BOOL_OPERATOR_DEFENITION
 }
 
 #endif

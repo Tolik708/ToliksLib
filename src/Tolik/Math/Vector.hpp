@@ -287,6 +287,15 @@ template<typename Type, std::size_t Size, VectorFlag Group> struct Vector : publ
   template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr std::conditional_t<(VectorSize > Size), Vector<VectorType, VectorSize, VectorGroup>, Self> operator/(const Vector<VectorType, VectorSize, VectorGroup> &vector) const;
   template<typename T> inline constexpr Self operator/(T value) const;
 
+  template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr bool operator==(const Vector<VectorType, VectorSize, VectorGroup> &vector) const;
+  template<typename T> inline constexpr bool operator==(T value) const;
+  template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr bool operator!=(const Vector<VectorType, VectorSize, VectorGroup> &vector) const;
+  template<typename T> inline constexpr bool operator!=(T value) const;
+  template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr bool operator>(const Vector<VectorType, VectorSize, VectorGroup> &vector) const;
+  template<typename T> inline constexpr bool operator>(T value) const;
+  template<typename VectorType, std::size_t VectorSize, VectorFlag VectorGroup> inline constexpr bool operator<(const Vector<VectorType, VectorSize, VectorGroup> &vector) const;
+  template<typename T> inline constexpr bool operator<(T value) const;
+
   template<typename QuaternionType, bool IsQ = isQuaternion, typename std::enable_if_t<IsQ, bool> = true> inline constexpr QuaT<QuaternionType> operator*(const QuaT<QuaternionType> &quaternion) const;
   template<typename VectorType, bool IsQ = isQuaternion, typename std::enable_if_t<IsQ, bool> = true> inline constexpr Vec3T<VectorType> operator*(Vec3T<VectorType> vector) const;
   template<typename QuaternionType, bool IsQ = isQuaternion, typename std::enable_if_t<!IsQ, bool> = true> inline constexpr operator*(const QuaT<QuaternionType> &quaternion) const { return quaternion * (*this); }

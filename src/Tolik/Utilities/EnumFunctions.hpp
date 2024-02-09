@@ -10,7 +10,7 @@ namespace Tolik
 {
 namespace Detail
 {
-  template<typename T> constexpr inline bool IsEnumOrArithmetic = std::is_enum_v<T> || std::is_arithmetic_v<T>;
+  template<typename T> constexpr bool IsEnumOrArithmetic = std::is_enum_v<T> || std::is_arithmetic_v<T>;
 }
 
 template<typename T, std::enable_if_t<!Detail::IsEnumOrArithmetic<T>, bool> = true> inline constexpr T ToUnderlying(T value)

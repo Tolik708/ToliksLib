@@ -12,65 +12,59 @@
 
 namespace Tolik
 {
-ShaderGL::ShaderGL(const std::string &vertexShaderPath, const std::string &fragmentShaderPath)
+uint32_t ShaderGL::CompileShader(const std::string &path) const
 {
-  std::string vertexSource, fragmentSource;
-  FileReader::ReadTxtFile(vertexShaderPath, vertexSource);
-  FileReader::ReadTxtFile(fragmentShaderPath,fragmentSource);
+  std::string source;
+  FileReader::ReadTxtFile(path, source);
+  const char *charSource = source.c_str();
 
-  int succes = 0;
-  uint32_t vertexShader, fragmentShader;
-  const char *vertexChar = vertexSource.c_str();
-  const char *fragmentChar = fragmentSource.c_str();
-
-  GL_CALL(vertexShader = glCreateShader(GL_VERTEX_SHADER));
-  GL_CALL(glShaderSource(vertexShader, 1, &vertexChar, NULL));
-  GL_CALL(glCompileShader(vertexShader));
-  GL_CALL(glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &succes));
+  int succes;
+  uint32_t shader;
+  GL_CALL(shader = glCreateShader(ExtensionToShaderType(FileReader::GetExtention(path))));
+  GL_CALL(glShaderSource(shader, 1, &charSource, NULL));
+  GL_CALL(glCompileShader(shader));
+  GL_CALL(glGetShaderiv(shader, GL_COMPILE_STATUS, &succes));
   if(!succes)
   {
     char buffer[512];
-    GL_CALL(glGetShaderInfoLog(vertexShader, 512, NULL, buffer));
-    Debug::GetLogger("main").Error("In compiling @0 @1", vertexShaderPath, buffer);
+    GL_CALL(glGetShaderInfoLog(shader, 512, NULL, buffer));
+    Debug::GetLogger("main").Error("In compiling @0\n @1", path, buffer);
   }
 
-  GL_CALL( fragmentShader = glCreateShader(GL_FRAGMENT_SHADER));
-  GL_CALL( glShaderSource(fragmentShader, 1, &fragmentChar, NULL));
-  GL_CALL( glCompileShader(fragmentShader));
-  GL_CALL( glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &succes));
-  if(!succes)
-  {
-    char buffer[512];
-    GL_CALL(glGetShaderInfoLog(fragmentShader, 512, NULL, buffer));
-    Debug::GetLogger("main").Error("In compiling @0 @1", vertexShaderPath, buffer);
-  }
+  return shader;
+}
 
+void ShaderGL::CreateProgram(std::initializer_list<uint32_t> list)
+{
   GL_CALL(m_id = glCreateProgram());
-  GL_CALL(glAttachShader(m_id, vertexShader));
-  GL_CALL(glAttachShader(m_id, fragmentShader));
+  for(auto shader : list)
+    GL_CALL(glAttachShader(m_id, shader));
+  
+  int succes;
   GL_CALL(glLinkProgram(m_id));
   GL_CALL(glGetProgramiv(m_id, GL_LINK_STATUS, &succes));
   if(!succes)
   {
     char buffer[512];
     GL_CALL(glGetProgramInfoLog(m_id, 512, NULL, buffer));
-    Debug::GetLogger("main").Error("Error in linking shaders: ", buffer);
+    Debug::GetLogger("main").Error("Error in linking shaders ", buffer);
   }
 
-  GL_CALL(glDeleteShader(vertexShader));
-  GL_CALL(glDeleteShader(fragmentShader));
+  for(auto shader : list)
+    GL_CALL(glDeleteShader(shader));
 }
 
 int ShaderGL::GetLocation(const std::string &name) const
 {
-  int result = -1;
+  int result;
   GL_CALL(result = glGetUniformLocation(m_id, name.c_str()));
   if(result == -1)
   {
-    Debug::GetLogger("main").Error("In call to glGetUniformLocation: name - \"@0\" does not correspond to an active uniform variable in \
-    program, name starts with the reserved prefix \"gl_\", or name is associated with an atomic counter or a named uniform block.", name);
+    Debug::GetLogger("main").Error(name, " does not correspond to an active uniform variable in \
+    program, name starts with the reserved prefix \"gl_\", or name is associated with an atomic counter or a named uniform block.");
     return 0;
   }
+
   return result;
 }
 }
