@@ -14,11 +14,7 @@ THIRDPARTY :=
 INCLUDES := -I$(SOURCEDIR)
 ARGS :=
 ECHO := @
-ifeq ($(ARGS),LIB)
-PROGRESS := 0
-else
-PROGRESS := 1 #here put user preference
-endif
+PROGRESS := 1
 DEFINES :=
 STDVERSION := -std=c++17
 INCLUDEFILESEXTENTIONS := hpp tpp inl
@@ -34,6 +30,10 @@ ifeq (clean,$(filter clean,$(if $(MAKECMDGOALS),$(MAKECMDGOALS),$(.DEFAULT_GOAL)
 OUTPUTIGNORE := $(foreach lib,$(LIBSTOCOMPILE),$(info Cleaning $(lib)...) $(shell make clean ARGS=LIB -C "$(lib)"))
 else
 OUTPUTIGNORE := $(foreach lib,$(LIBSTOCOMPILE),$(info Compiling $(lib)...) $(shell make ARGS=LIB -C "$(lib)"))
+endif
+
+ifeq ($(ARGS),LIB)
+PROGRESS := 0
 endif
 
 # Note. I use findutils from (clang compiler?) it is located in msys2/usr/bin
